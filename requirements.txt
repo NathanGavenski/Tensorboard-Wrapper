@@ -1,0 +1,2 @@
+numpy
+tensorboard==1.15
