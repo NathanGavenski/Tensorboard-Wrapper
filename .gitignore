@@ -1,0 +1,7 @@
+# Build files
+dist/
+build/
+tensorboard_wrapper.egg-info/
+
+# Python dirs
+__pycache__/
