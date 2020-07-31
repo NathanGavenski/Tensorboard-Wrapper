@@ -8,7 +8,6 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name='tensorboard-wrapper',  
     version='0.1',
-    scripts=['tensorboard-wrapper'] ,
     author="Gavenski, Nathan",
     author_email="nathan.gavenski@edu.pucrs.br",
     description="A wrapper class for the Tensorflow's Tensorboard application",

@@ -8,7 +8,7 @@ import torch
 import torchvision
 from torch.utils.tensorboard import SummaryWriter
 
-from Exceptions import BoardAlreadyExistsException
+from .exceptions import BoardAlreadyExistsException
 
 
 class Tensorboard():
