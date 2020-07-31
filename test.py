@@ -3,12 +3,11 @@ import os
 import shutil
 import unittest
 
-import tensorboard-wrapper
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-# from Tensorboard import Tensorboard
-from Exceptions import BoardAlreadyExistsException
+from tensorboard_wrapper.tensorboard import Tensorboard
+from tensorboard_wrapper.exceptions import BoardAlreadyExistsException
 
 class TestCases(unittest.TestCase):
 

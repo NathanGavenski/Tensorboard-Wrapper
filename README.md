@@ -4,23 +4,28 @@ This is a wrapper class for the Tensorflow's Tensorboard application. It is stil
 Tensorboard.py is the Wrapper that contains all functions needed to interact, more documentation should come in the future, but as for now, the requirements for this project are:
 
 ```
+setuptools
+wheel
+twine
 numpy
 tensorboard==1.15
-torch
+torch>=1.6.0 
+torchvision>=0.7.0 
+```
+
+You can now install this project by using:
+```
+pip install tensorboard-wrapper
 ```
 
 
-
-
-There are no installs for the moments to be used with any other repositories.
-
-Todo List:
+## Todo List:
 - [ ] Unit Tests for the functions available
 - [ ] Documentation
-- [ ] pip install module
+- [x] pip install module
 - [ ] Implement rest of the Tensorboard functions
 
-A list of the functions already implemented:
+### And the list of the functions already implemented:
 - [x] tebsirbiard.writer.SummaryWritter
 - [x] add_scalar
 - [x] add_scalar*
