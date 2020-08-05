@@ -1,0 +1,13 @@
+# Build files
+dist/
+build/
+tensorboard_wrapper.egg-info/
+
+# Python dirs
+__pycache__/
+
+# Test and Coverage
+*.xml
+.coverage
+htmlcov/
+junit/
