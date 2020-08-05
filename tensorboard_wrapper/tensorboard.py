@@ -32,10 +32,10 @@ class Tensorboard():
 
         if os.path.exists(path) and delete:
             shutil.rmtree(f'{path}')
-        elif os.path.exists(path)and delete:
+        elif os.path.exists(path) and not delete:
             raise BoardAlreadyExistsException(path)
         else:
-            os.makedirs(path)
+            os.makedirs(path, exist_ok=True)
 
         if name is None:
             name = datetime.now()
