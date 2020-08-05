@@ -1,6 +1,6 @@
 # Tensorboard
-
 This is a wrapper class for the Tensorflow's Tensorboard application. It is still in early development, and should be used with a grain of salt.
+If you want to help be sure to contact me or fork this repository and work on our ToDo list from the development branch.
 Tensorboard.py is the Wrapper that contains all functions needed to interact, more documentation should come in the future, but as for now, the requirements for this project are:
 
 ```
@@ -18,15 +18,8 @@ You can now install this project by using:
 pip install tensorboard-wrapper
 ```
 
-
-## Todo List:
-- [ ] Unit Tests for the functions available
-- [ ] Documentation
-- [x] pip install module
-- [ ] Implement rest of the Tensorboard functions
-
 ### And the list of the functions already implemented:
-- [x] tebsirbiard.writer.SummaryWritter
+- [x] tensorboard.writer.SummaryWritter
 - [x] add_scalar
 - [x] add_scalar*
 - [x] add_histogram*
