@@ -34,12 +34,12 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        #VERSION=`git describe --abbrev=0 --tags`
-        #VERSION_BITS=(${VERSION//./ })
-        #VNUM1=${VERSION_BITS[0]}
-        #VNUM2=${VERSION_BITS[1]}
-        #VNUM3=${VERSION_BITS[2]}
-        #VNUM3=$((VNUM3+1))
-        #NEW_TAG="$VNUM1.$VNUM2.$VNUM3"
-        git tag tw-0.1.2        
+        VERSION=`git describe --abbrev=0 --tags`
+        VERSION_BITS=(${VERSION//./ })
+        VNUM1=${VERSION_BITS[0]}
+        VNUM2=${VERSION_BITS[1]}
+        VNUM3=${VERSION_BITS[2]}
+        VNUM3=$((VNUM3+1))
+        NEW_TAG="$VNUM1.$VNUM2.$VNUM3"
+        git tag $NEW_TAG       
         python setup.py register sdist upload
