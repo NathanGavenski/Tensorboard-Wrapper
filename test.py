@@ -6,8 +6,8 @@ import unittest
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from tensorboard_wrapper.tensorboard import Tensorboard
-from tensorboard_wrapper.exceptions import BoardAlreadyExistsException
+from tensorboard_wrapper import Tensorboard
+from tensorboard_wrapper import BoardAlreadyExistsException
 
 class TestCases(unittest.TestCase):
 
@@ -216,4 +216,4 @@ class TestCases(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    # TestCases().test_add_grid()
+    TestCases().prior_positive_test()

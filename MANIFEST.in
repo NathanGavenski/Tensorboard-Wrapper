@@ -1,0 +1,2 @@
+include versioneer.py
+include ./tensorboard_wrapper/_version.py

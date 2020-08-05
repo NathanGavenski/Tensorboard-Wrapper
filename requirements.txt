@@ -1,8 +1,12 @@
-setuptools
-wheel
-twine
+# Use
 numpy
 tensorboard==1.15
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch>=1.6.0 
-torchvision>=0.7.0 
+torchvision>=0.7.0
+
+# Development
+setuptools
+twine
+wheel
+versioneer

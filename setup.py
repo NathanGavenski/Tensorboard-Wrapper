@@ -1,4 +1,5 @@
 import setuptools
+import versioneer
 
 
 with open("README.md", "r") as fh:
@@ -6,9 +7,10 @@ with open("README.md", "r") as fh:
 
 
 setuptools.setup(
-    name='tensorboard-wrapper',  
-    version='0.1.2',
     author="Gavenski, Nathan",
+    name='tensorboard-wrapper',
+    cmdclass=versioneer.get_cmdclass(),
+    version=versioneer.get_version(),
     author_email="nathan.gavenski@edu.pucrs.br",
     description="A wrapper class for the Tensorflow's Tensorboard application",
     long_description=long_description,
