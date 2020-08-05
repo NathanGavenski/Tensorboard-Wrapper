@@ -30,9 +30,9 @@ class Tensorboard():
         path = './runs/' if path is None else path
         path = f'{path}/' if '/' != path[-1] else path
 
-        if os.path.exists(path) is True and delete is True:
+        if os.path.exists(path) and delete:
             shutil.rmtree(f'{path}')
-        elif os.path.exists(path) is True and delete is False:
+        elif os.path.exists(path)and delete:
             raise BoardAlreadyExistsException(path)
         else:
             os.makedirs(path)
