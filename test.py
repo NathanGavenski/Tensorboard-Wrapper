@@ -31,6 +31,12 @@ class TestCases(unittest.TestCase):
             delete=False
         )
 
+    def default(self) -> Tensorboard:        
+        self.name = 'Test'
+        self.path = './Test'
+        self.prior_positive_test()
+        return self.create_board()
+
     def test_init(self):
         """
         """
@@ -51,6 +57,7 @@ class TestCases(unittest.TestCase):
             assert isinstance(board.epoch, defaultdict)
             assert isinstance(board.histograms, defaultdict)
         finally:
+            board.close()
             shutil.rmtree(self.path)
 
     def test_init_already_exists(self):
@@ -92,6 +99,7 @@ class TestCases(unittest.TestCase):
             epoch='Test',
             images=images,
         )
+        board.close()
 
     def test_add_grid_negative_epoch(self):
         """
@@ -119,6 +127,8 @@ class TestCases(unittest.TestCase):
             'Tensorboard: epoch should be a str or None',
             str(context.exception)
         )
+        
+        board.close()
     
     def test_histogram(self):
         """
@@ -144,6 +154,8 @@ class TestCases(unittest.TestCase):
 
         assert board.histograms['default'] == hist.tolist()
         assert len(board.histograms.keys()) == 2
+        
+        board.close()
 
     def test_histogram_negative(self):
         """
@@ -180,8 +192,10 @@ class TestCases(unittest.TestCase):
             str(context.exception)
         )
         assert len(board.histograms.keys()) == 0
+        
+        board.close()
 
-    def test_hparams(self):
+    def test_hparams_positive(self):
         """
         """
         self.name = 'Test'
@@ -190,6 +204,8 @@ class TestCases(unittest.TestCase):
         board = self.create_board()  
         board.add_hparams({}, {})
         board.add_hparams({})
+
+        board.close()
 
     def test_hparams_negative(self):
         """
@@ -215,6 +231,8 @@ class TestCases(unittest.TestCase):
             'Tensorboard: metrics should be a dictionary.',
             str(context.exception)
         )
+        
+        board.close()
 
     def test_add_image_positive(self):
         """
@@ -238,6 +256,8 @@ class TestCases(unittest.TestCase):
         board.add_image(prior='Test', title='Test', image=image)
         # Test prior and epoch None
         board.add_image(title='Test', image=image)
+        
+        board.close()
 
     def test_add_image_negative(self):
         """
@@ -301,7 +321,73 @@ class TestCases(unittest.TestCase):
             str(context.exception)
         )
 
+        board.close()
 
-if __name__ == "__main__":
-    unittest.main()
-    TestCases().prior_positive_test()
+    def test_add_scalar_positive(self):
+        """
+        """
+        board = self.default()
+
+        value = torch.tensor(23)
+        # Test sending all parameters
+        board.add_scalar(title='Test', value=value, epoch='Test', prior='Test')
+
+        # Test sending only prior
+        board.add_scalar(title='Test', value=value, prior='Test')
+
+        # Test sending only epoch
+        board.add_scalar(title='Test', value=value, epoch='Test')
+
+        # Test sending only necessary parameters
+        board.add_scalar(title='Test', value=value)
+
+        # Test value as int
+        board.add_scalar(title='Test', value=23)
+        
+        # Test value as float
+        board.add_scalar(title='Test', value=.23)
+
+        # Test value as torch.Tensor
+        board.add_scalar(title='Test', value=torch.tensor(23))
+        
+        board.close()
+
+    def test_add_scalar_negative(self):
+        """
+        """
+        board = self.default()
+
+        value = torch.tensor(23)
+        # Test title different type
+        with self.assertRaises(Exception) as context:
+            board.add_scalar(title=23, value=value)
+        self.assertIn(
+            'Tensorboard: title should be a string.',
+            str(context.exception)
+        )
+
+        # Test value different types
+        with self.assertRaises(Exception) as context:
+            board.add_scalar(title='Test', value='23')
+        self.assertIn(
+            'Tensorboard: value should be an int, float or torch.Tensor.',
+            str(context.exception)
+        )
+
+        # Test prior different type
+        with self.assertRaises(Exception) as context:
+            board.add_scalar(title='Test', value=value, prior=23)
+        self.assertIn(
+            'Tensorboard: prior should be a string or None.',
+            str(context.exception)
+        )
+
+        # Test epoch different type
+        with self.assertRaises(Exception) as context:
+            board.add_scalar(title='Test', value=value, epoch=23)
+        self.assertIn(
+            'Tensorboard: value should be a string or None.',
+            str(context.exception)
+        )
+        
+        board.close()

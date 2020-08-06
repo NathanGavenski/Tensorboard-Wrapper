@@ -144,7 +144,7 @@ class Tensorboard():
         name = f'{prior}/{title}' if prior is not None else title
         self.writer.add_image(name, image, epoch)
 
-    def add_scalar(self, prior, title, value, epoch=None):
+    def add_scalar(self, title, value, epoch=None, prior=None):
         """
         Add a single scalar data to summary.
 
@@ -159,9 +159,19 @@ class Tensorboard():
             It should be a string.
             Defualt: None.
         """
+        if not isinstance(title, str):
+            raise Exception('Tensorboard: title should be a string.')
+        if not isinstance(value, (int, float, torch.Tensor)):
+            raise Exception('Tensorboard: value should be an int, float or torch.Tensor.')
+        if not isinstance(epoch, str) and epoch is not None:
+            raise Exception('Tensorboard: value should be a string or None.')
+        if not isinstance(prior, str) and prior is not None:
+            raise Exception('Tensorboard: prior should be a string or None.')
+
         epoch = self.epoch['default'] if epoch is None else self.epoch[epoch]
 
-        self.writer.add_scalar(f'{prior}/{title}', value, epoch)
+        name = f'{prior}/{title}' if prior is not None else title
+        self.writer.add_scalar(name, value, epoch)
 
     def add_scalars(self, prior, epoch=None, **kwargs):
         """
