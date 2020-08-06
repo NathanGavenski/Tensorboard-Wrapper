@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 import shutil
 
-import numpy
+import numpy as np
 import torch
 import torchvision
 from torch.utils.tensorboard import SummaryWriter
@@ -112,7 +112,7 @@ class Tensorboard():
             raise Exception('Tensorboard: metrics should be a dictionary.')
         self.writer.add_hparams(hparams, metrics)
 
-    def add_image(self, prior, title, image, epoch=None):
+    def add_image(self, title, image, prior=None, epoch=None):
         """
         Add a single image data to summary.
 
@@ -127,9 +127,22 @@ class Tensorboard():
             It should be a string.
             Defualt: None.
         """
+        if not isinstance(prior, str) and prior is not None:
+            raise Exception('Tensorboard: prior should be a string or None.')
+        if not isinstance(title, str):
+            raise Exception('Tensorboard: title should be a string.')
+        if not isinstance(image, (torch.Tensor, np.ndarray)):
+            raise Exception('Tensorboard: title should be a Tensor or a Numpy Array.')
+
+        if len(image.shape) > 3:
+            raise Exception('Tensorboard: for more than one image use "add_grid"')
+        elif image.shape[0] not in [1, 3]:
+            raise Exception('Tensorboard: image should be of shape CxHxW.')
+
         epoch = self.epoch['default'] if epoch is None else self.epoch[epoch]
 
-        self.writer.add_image(f'{prior}/{title}', image, epoch)
+        name = f'{prior}/{title}' if prior is not None else title
+        self.writer.add_image(name, image, epoch)
 
     def add_scalar(self, prior, title, value, epoch=None):
         """
@@ -205,5 +218,5 @@ class Tensorboard():
         Add all histograms to summary at the end of an epoch.
         """
         for title in self.histograms:
-            self.writer.add_histogram(title, numpy.array(self.histograms[title]), self.epoch[epoch])
+            self.writer.add_histogram(title, np.array(self.histograms[title]), self.epoch[epoch])
 

@@ -3,8 +3,10 @@ import os
 import shutil
 import unittest
 
+import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from torchvision import transforms
 
 from tensorboard_wrapper import Tensorboard
 from tensorboard_wrapper import BoardAlreadyExistsException
@@ -30,8 +32,8 @@ class TestCases(unittest.TestCase):
         )
 
     def test_init(self):
-        '''
-        '''
+        """
+        """
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()
@@ -52,8 +54,8 @@ class TestCases(unittest.TestCase):
             shutil.rmtree(self.path)
 
     def test_init_already_exists(self):
-        '''
-        '''
+        """
+        """
 
         self.name = 'Test'
         self.path = './Test'
@@ -70,8 +72,8 @@ class TestCases(unittest.TestCase):
         self.assertIn(message, str(context.exception))
 
     def test_add_grid(self):
-        '''
-        '''
+        """
+        """
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()
@@ -92,8 +94,8 @@ class TestCases(unittest.TestCase):
         )
 
     def test_add_grid_negative_epoch(self):
-        '''
-        '''
+        """
+        """
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()
@@ -119,8 +121,8 @@ class TestCases(unittest.TestCase):
         )
     
     def test_histogram(self):
-        '''
-        '''
+        """
+        """
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()        
@@ -144,8 +146,8 @@ class TestCases(unittest.TestCase):
         assert len(board.histograms.keys()) == 2
 
     def test_histogram_negative(self):
-        '''
-        '''
+        """
+        """
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()
@@ -180,8 +182,8 @@ class TestCases(unittest.TestCase):
         assert len(board.histograms.keys()) == 0
 
     def test_hparams(self):
-        '''
-        '''
+        """
+        """
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()
@@ -190,8 +192,8 @@ class TestCases(unittest.TestCase):
         board.add_hparams({})
 
     def test_hparams_negative(self):
-        '''
-        '''
+        """
+        """
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()
@@ -213,6 +215,92 @@ class TestCases(unittest.TestCase):
             'Tensorboard: metrics should be a dictionary.',
             str(context.exception)
         )
+
+    def test_add_image_positive(self):
+        """
+        """
+        self.name = 'Test'
+        self.path = './Test'
+        self.prior_positive_test()
+        board = self.create_board()
+
+        # Test image as torch.Tensor
+        image = torch.Tensor(size=(3, 224, 224))
+        board.add_image(prior='Test', title='Test', image=image, epoch='Test')
+
+        # Test image as np.ndarray
+        image = np.ndarray(shape=(3, 224, 224))
+        board.add_image(prior='Test', title='Test', image=image, epoch='Test')
+
+        # Test prior None
+        board.add_image(title='Test', image=image, epoch='Test')
+        # Test epoch None
+        board.add_image(prior='Test', title='Test', image=image)
+        # Test prior and epoch None
+        board.add_image(title='Test', image=image)
+
+    def test_add_image_negative(self):
+        """
+        """
+        self.name = 'Test'
+        self.path = './Test'
+        self.prior_positive_test()
+        board = self.create_board()
+
+        image = torch.Tensor(size=(3, 224, 224))
+
+        # Test prior different type
+        with self.assertRaises(Exception) as context:
+            board.add_image(prior={}, title='Test', image=image)
+        self.assertIn(
+            'Tensorboard: prior should be a string or None.',
+            str(context.exception)
+        )
+
+        # Test title different type
+        with self.assertRaises(Exception) as context:
+            board.add_image(title={}, image=image)
+        self.assertIn(
+            'Tensorboard: title should be a string.',
+            str(context.exception)
+        )
+
+        # Test image as PIL
+        pil_image = transforms.ToPILImage()(image)
+        with self.assertRaises(Exception) as context:
+            board.add_image(title='Test', image=pil_image)
+        self.assertIn(
+            'Tensorboard: title should be a Tensor or a Numpy Array.',
+            str(context.exception)
+        )
+
+        # Test image with 2 channels
+        two_channels = torch.Tensor(size=(2, 224, 224))
+        with self.assertRaises(Exception) as context:
+            board.add_image(title='Test', image=two_channels)
+        self.assertIn(
+            'Tensorboard: image should be of shape CxHxW.',
+            str(context.exception)
+        )
+
+        # Test image wrong order of dims
+        wrong_order = torch.Tensor(size=(224, 224, 3))
+        with self.assertRaises(Exception) as context:
+            board.add_image(title='Test', image=wrong_order)
+        self.assertIn(
+            'Tensorboard: image should be of shape CxHxW.',
+            str(context.exception)
+        )
+
+        # Test image as batched images        
+        batched_images = torch.Tensor(size=(32, 224, 224, 3))
+        with self.assertRaises(Exception) as context:
+            board.add_image(title='Test', image=batched_images)
+        self.assertIn(
+            'Tensorboard: for more than one image use "add_grid"',
+            str(context.exception)
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
