@@ -164,7 +164,7 @@ class Tensorboard():
         if not isinstance(value, (int, float, torch.Tensor)):
             raise Exception('Tensorboard: value should be an int, float or torch.Tensor.')
         if not isinstance(epoch, str) and epoch is not None:
-            raise Exception('Tensorboard: value should be a string or None.')
+            raise Exception('Tensorboard: epoch should be a string or None.')
         if not isinstance(prior, str) and prior is not None:
             raise Exception('Tensorboard: prior should be a string or None.')
 
@@ -173,7 +173,7 @@ class Tensorboard():
         name = f'{prior}/{title}' if prior is not None else title
         self.writer.add_scalar(name, value, epoch)
 
-    def add_scalars(self, prior, epoch=None, **kwargs):
+    def add_scalars(self, epoch=None, prior=None, **kwargs):
         """
         Add scalars data to summary.
 
@@ -186,12 +186,22 @@ class Tensorboard():
             It should be a string.
             Defualt: None.
 
-            **kwargs:the key, value of the entry into the Tensorboard.
+            **kwargs: Keys and values of all entries into the Tensorboard.
         """
+        if not isinstance(kwargs, dict):
+            raise Exception('Tensorboard: kwargs should be a dict.')
+        if not isinstance(epoch, str) and epoch is not None:
+            raise Exception('Tensorboard: epoch should be a string or None.')
+        if not isinstance(prior, str) and prior is not None:
+            raise Exception('Tensorboard: prior should be a string.')
+        
         epoch = self.epoch['default'] if epoch is None else self.epoch[epoch]
 
         for i in kwargs:
-            self.writer.add_scalar(f'{prior}/{i}', kwargs[i], epoch)
+            if not isinstance(kwargs[i], (int, float, torch.Tensor)):
+                raise Exception('Tensorboard: value should be an int, float or torch.Tensor.')
+            name = f'{prior}/{i}' if prior is not None else i
+            self.writer.add_scalar(name, kwargs[i], epoch)
     
     def close(self):
         """

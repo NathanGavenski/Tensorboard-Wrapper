@@ -55,7 +55,9 @@ class TestCases(unittest.TestCase):
             assert board.writer.log_dir == self.get_path()
             assert os.path.exists(self.get_path())
             assert isinstance(board.epoch, defaultdict)
+            assert isinstance(board.epoch['default'], int)
             assert isinstance(board.histograms, defaultdict)
+            assert isinstance(board.histograms['default'], list)
         finally:
             board.close()
             shutil.rmtree(self.path)
@@ -141,11 +143,11 @@ class TestCases(unittest.TestCase):
 
         hist = torch.Tensor(size=(7, 7)).flatten()
         board.add_histogram(
-            epoch='Test',
+            epoch='test',
             histogram=hist,
         )
 
-        assert board.histograms['Test'] == hist.tolist()
+        assert board.histograms['test'] == hist.tolist()
         assert len(board.histograms.keys()) == 1
 
         board.add_histogram(
@@ -386,8 +388,56 @@ class TestCases(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             board.add_scalar(title='Test', value=value, epoch=23)
         self.assertIn(
-            'Tensorboard: value should be a string or None.',
+            'Tensorboard: epoch should be a string or None.',
             str(context.exception)
         )
         
         board.close()
+
+    def test_add_scalars_positive(self):
+        """
+        """
+        board = self.default()
+
+        values = defaultdict(int)
+        values['value1'] = torch.tensor(23)
+        values['value2'] = .23
+        values['values3'] = 23
+
+        # Test sending all parameters
+        board.add_scalars(prior='Test', epoch='Test', Test=123)
+
+        # Test sending only prior
+        board.add_scalars(prior='Test', Test=123)
+
+        # Test sending only epoch
+        board.add_scalars(epoch='Test', Test=123)
+
+        # Test sending only necessary parameters
+        board.add_scalars(Test=123)
+
+        # Test value as int
+        board.add_scalars(**values)
+
+        board.close()
+
+    def test_add_scalars_negative(self):
+        """
+        """
+        board = self.default()
+
+        values = defaultdict(int)
+        values['value1'] = torch.tensor(23)
+        values['value2'] = .23
+        values['values3'] = 23
+
+        # Test kwargs different types
+
+        # Test prior different type
+
+        # Test epoch different type
+        
+        board.close()
+
+if __name__ == "__main__":
+    unittest.main()
