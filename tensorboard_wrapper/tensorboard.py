@@ -193,7 +193,7 @@ class Tensorboard():
         if not isinstance(epoch, str) and epoch is not None:
             raise Exception('Tensorboard: epoch should be a string or None.')
         if not isinstance(prior, str) and prior is not None:
-            raise Exception('Tensorboard: prior should be a string.')
+            raise Exception('Tensorboard: prior should be a string or None.')
         
         epoch = self.epoch['default'] if epoch is None else self.epoch[epoch]
 
@@ -218,20 +218,32 @@ class Tensorboard():
             epoch: Could be a string, a list of string, or None.
             Default: None
         """
-        if self.histograms[epoch]:
-            self.__save_histogram(epoch)
-            self.histograms = defaultdict(list)
+        if not isinstance(epoch, (str, list)) and epoch is not None:
+            raise Exception('Tensorboard: epoch should be a string, a list of strings or None.')
+        if isinstance(epoch, list) and not all(key in self.epoch.keys() for key in epoch):
+            raise Exception('Tensorboard: one of the epochs specified does not exist.')
+        if not isinstance(epoch, list) and epoch not in self.epoch.keys() and epoch is not None:
+            raise Exception('Tensorboard: the epoch specified does not exist.')  
 
-        if epoch is not None:
-            self.epoch[epoch] += 1
-        elif isinstance(epoch):
+        if isinstance(epoch, list):
             for key in epoch:
+                if self.histograms[key]:
+                    self.__save_histogram(key)
                 self.epoch[key] += 1
-        elif len(self.epoch.keys()) > 0:
+        elif epoch is not None:
+            if self.histograms[epoch]:
+                self.__save_histogram(epoch)
+            self.epoch[epoch] += 1
+        elif len(self.epoch.keys()) > 1:
             for key in self.epoch.keys():
+                if self.histograms[key]:
+                    self.__save_histogram(key)
                 self.epoch[key] += 1
         else:
+            if self.histograms['default']:
+                self.__save_histogram('default')    
             self.epoch['default'] += 1
+        self.histograms = defaultdict(list)
 
     def __save_histogram(self, epoch):
         """

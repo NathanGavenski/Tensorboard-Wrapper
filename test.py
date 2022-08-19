@@ -28,7 +28,7 @@ class TestCases(unittest.TestCase):
         return Tensorboard(
             name=self.name,
             path=self.path,
-            delete=False
+            delete=True
         )
 
     def default(self) -> Tensorboard:        
@@ -37,7 +37,7 @@ class TestCases(unittest.TestCase):
         self.prior_positive_test()
         return self.create_board()
 
-    def test_init(self):
+    def test_init(self) -> None:
         """
         """
         self.name = 'Test'
@@ -428,16 +428,145 @@ class TestCases(unittest.TestCase):
 
         values = defaultdict(int)
         values['value1'] = torch.tensor(23)
-        values['value2'] = .23
+        values['value2'] = '.23'
         values['values3'] = 23
 
         # Test kwargs different types
+        with self.assertRaises(Exception) as context:
+            board.add_scalars(**values)
+        self.assertIn(
+            'Tensorboard: value should be an int, float or torch.Tensor.',
+            str(context.exception)
+        )
+
 
         # Test prior different type
+        with self.assertRaises(Exception) as context:
+            board.add_scalars(prior=23, Test=123)
+        self.assertIn(
+            'Tensorboard: prior should be a string or None.',
+            str(context.exception)
+        )
 
         # Test epoch different type
+        with self.assertRaises(Exception) as context:
+            board.add_scalars(epoch=23, Test=123)
+        self.assertIn(
+            'Tensorboard: epoch should be a string or None.',
+            str(context.exception)
+        )
         
         board.close()
+
+    def test_delta_save_positive(self):
+        """
+        """
+        self.name = 'Test'
+        self.path = './Test'
+        self.prior_positive_test()
+        board = Tensorboard(
+            name=self.name, 
+            path=self.path, 
+            delete=False,
+            delta=30,
+        )
+
+        # Test if the model should save
+        assert board.should()
+
+        # Test if the model should not save
+        board.step()
+        assert not board.should()
+
+        # Test upper limit
+        board.epoch['default'] += 29
+        assert board.should()
+
+        # Test specific epoch
+        board.epoch['test'] = 0
+        assert board.should(epoch='test')
+
+    def test_delta_save_negative(self) -> None:
+        """
+        """
+        self.name = 'Test'
+        self.path = './Test'
+        self.prior_positive_test()
+        board = Tensorboard(
+            name=self.name, 
+            path=self.path, 
+            delete=False,
+            delta=30,
+        )
+        
+        # Test non existent epoch
+        # Test wrong type epoch
+
+    def test_step_positive(self):
+        """
+        """
+        board = self.default()
+        
+        # Test if step increases in value
+        assert board.epoch['default'] == 0
+        board.step()
+        assert board.epoch['default'] == 1
+
+        # Test if it increases only the specified epoch
+        board.epoch['test'] = 0
+        board.step('test')
+        assert board.epoch['default'] == 1
+        assert board.epoch['test'] == 1
+
+        # Test if accepts a list
+        board.epoch['test2'] = 0
+        board.step(['test', 'test2'])
+        assert board.epoch['test'] == 2
+        assert board.epoch['test2'] == 1
+        assert board.epoch['default'] == 1
+
+        # Test if it updates all epochs
+        board.step()
+        assert board.epoch['test'] == 3
+        assert board.epoch['test2'] == 2
+        assert board.epoch['default'] == 2
+
+        # Test if saves the histogram
+        board.add_histogram(torch.tensor([1, 2, 3]))
+        board.step()
+        assert len(board.histograms.keys()) == 0
+
+    def test_step_negative(self) -> None:
+        """
+        """
+        board = self.default()
+        # Test epoch not type
+        with self.assertRaises(Exception) as context:
+            board.step(epoch=23)
+        self.assertIn(
+            'Tensorboard: epoch should be a string, a list of strings or None.',
+            str(context.exception)
+        )
+
+        # Test epoch not in keys (list)
+        board = self.default()
+        board.step()
+        with self.assertRaises(Exception) as context:
+            board.step(epoch=['default', 'test'])
+        self.assertIn(
+            'Tensorboard: one of the epochs specified does not exist.',
+            str(context.exception)
+        )
+
+        # Test epoch not in keys (str)
+        board = self.default()
+        with self.assertRaises(Exception) as context:
+            board.step(epoch='test')
+        self.assertIn(
+            'Tensorboard: the epoch specified does not exist.',
+            str(context.exception)
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
