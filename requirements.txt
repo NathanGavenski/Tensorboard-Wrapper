@@ -1,11 +1,14 @@
 # Use
 numpy
-tensorboard==1.15
+tensorboard
+protobuf
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch>=1.6.0 
 torchvision>=0.7.0
 
 # Development
+pytest
+pylint
 setuptools
 twine
 wheel

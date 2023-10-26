@@ -14,8 +14,13 @@ torchvision>=0.7.0
 ```
 
 You can now install this project by using:
-```
+```{bash}
 pip install tensorboard-wrapper
+```
+
+You can run the tests by executing:
+```{bash}
+python -m unittest test.py
 ```
 
 ### And the list of the functions already implemented:
