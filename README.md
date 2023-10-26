@@ -3,12 +3,9 @@ This is a wrapper class for the Tensorflow's Tensorboard application. It is stil
 If you want to help be sure to contact me or fork this repository and work on our ToDo list from the development branch.
 Tensorboard.py is the Wrapper that contains all functions needed to interact, more documentation should come in the future, but as for now, the requirements for this project are:
 
-```
-setuptools
-wheel
-twine
+```bash
 numpy
-tensorboard==1.15
+tensorboard
 torch>=1.6.0 
 torchvision>=0.7.0 
 ```
@@ -20,7 +17,7 @@ pip install tensorboard-wrapper
 
 You can run the tests by executing:
 ```{bash}
-python -m unittest test.py
+pytest
 ```
 
 ### And the list of the functions already implemented:
