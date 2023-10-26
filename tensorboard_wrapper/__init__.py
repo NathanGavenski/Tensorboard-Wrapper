@@ -12,5 +12,5 @@ from .exceptions import BoardAlreadyExistsException
 
 __version__ = get_versions()['version']
 __author__ = "Nathan Gavenski"
-__credits__ = "Machine Learning Theory and Applications Lab"
+__credits__ = "Nathan Gavenski"
 del get_versions

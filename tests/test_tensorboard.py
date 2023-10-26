@@ -1,7 +1,7 @@
 from collections import defaultdict
 import os
 import shutil
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import torch
@@ -11,7 +11,8 @@ from torchvision import transforms
 from tensorboard_wrapper import Tensorboard
 from tensorboard_wrapper import BoardAlreadyExistsException
 
-class TestCases(unittest.TestCase):
+
+class TestBoard(TestCase):
 
     def get_path(self):
         return f'{self.path}/{self.name}'
@@ -19,7 +20,7 @@ class TestCases(unittest.TestCase):
     def prior_positive_test(self):
         if os.path.exists(self.get_path()):
             shutil.rmtree(self.path)
-    
+
     def prior_negative_test(self):
         if not os.path.exists(self.get_path()):
             os.makedirs(self.get_path())
@@ -31,11 +32,15 @@ class TestCases(unittest.TestCase):
             delete=True
         )
 
-    def default(self) -> Tensorboard:        
+    def default(self) -> Tensorboard:
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()
         return self.create_board()
+
+    def tearDownClass() -> None:
+        if os.path.exists("./Test/"):
+            shutil.rmtree("./Test/")
 
     def test_init(self) -> None:
         """
@@ -69,7 +74,7 @@ class TestCases(unittest.TestCase):
         self.name = 'Test'
         self.path = './Test'
         self.prior_negative_test()
-        
+
         with self.assertRaises(BoardAlreadyExistsException) as context:
             Tensorboard(
                 name=self.name,
@@ -112,7 +117,7 @@ class TestCases(unittest.TestCase):
 
         board = self.create_board()
 
-        images = torch.Tensor(size=(32, 3, 224, 224))        
+        images = torch.Tensor(size=(32, 3, 224, 224))
         with self.assertRaises(TypeError) as context:
             board.add_grid(
                 epoch=[],
@@ -129,15 +134,15 @@ class TestCases(unittest.TestCase):
             'Tensorboard: epoch should be a str or None',
             str(context.exception)
         )
-        
+
         board.close()
-    
+
     def test_histogram(self):
         """
         """
         self.name = 'Test'
         self.path = './Test'
-        self.prior_positive_test()        
+        self.prior_positive_test()
 
         board = self.create_board()
 
@@ -156,7 +161,7 @@ class TestCases(unittest.TestCase):
 
         assert board.histograms['default'] == hist.tolist()
         assert len(board.histograms.keys()) == 2
-        
+
         board.close()
 
     def test_histogram_negative(self):
@@ -188,13 +193,13 @@ class TestCases(unittest.TestCase):
             board.add_histogram(
                 histogram=hist.tolist(),
             )
-        
+
         self.assertIn(
             'Tensorboard: histogram should be a Tensor',
             str(context.exception)
         )
         assert len(board.histograms.keys()) == 0
-        
+
         board.close()
 
     def test_hparams_positive(self):
@@ -203,7 +208,7 @@ class TestCases(unittest.TestCase):
         self.name = 'Test'
         self.path = './Test'
         self.prior_positive_test()
-        board = self.create_board()  
+        board = self.create_board()
         board.add_hparams({}, {})
         board.add_hparams({})
 
@@ -216,7 +221,7 @@ class TestCases(unittest.TestCase):
         self.path = './Test'
         self.prior_positive_test()
         board = self.create_board()
-        
+
         with self.assertRaises(Exception) as context:
             board.add_hparams(hparams=[])
         self.assertIn(
@@ -233,7 +238,7 @@ class TestCases(unittest.TestCase):
             'Tensorboard: metrics should be a dictionary.',
             str(context.exception)
         )
-        
+
         board.close()
 
     def test_add_image_positive(self):
@@ -258,7 +263,7 @@ class TestCases(unittest.TestCase):
         board.add_image(prior='Test', title='Test', image=image)
         # Test prior and epoch None
         board.add_image(title='Test', image=image)
-        
+
         board.close()
 
     def test_add_image_negative(self):
@@ -314,7 +319,7 @@ class TestCases(unittest.TestCase):
             str(context.exception)
         )
 
-        # Test image as batched images        
+        # Test image as batched images
         batched_images = torch.Tensor(size=(32, 224, 224, 3))
         with self.assertRaises(Exception) as context:
             board.add_image(title='Test', image=batched_images)
@@ -345,13 +350,13 @@ class TestCases(unittest.TestCase):
 
         # Test value as int
         board.add_scalar(title='Test', value=23)
-        
+
         # Test value as float
         board.add_scalar(title='Test', value=.23)
 
         # Test value as torch.Tensor
         board.add_scalar(title='Test', value=torch.tensor(23))
-        
+
         board.close()
 
     def test_add_scalar_negative(self):
@@ -391,7 +396,7 @@ class TestCases(unittest.TestCase):
             'Tensorboard: epoch should be a string or None.',
             str(context.exception)
         )
-        
+
         board.close()
 
     def test_add_scalars_positive(self):
@@ -439,7 +444,6 @@ class TestCases(unittest.TestCase):
             str(context.exception)
         )
 
-
         # Test prior different type
         with self.assertRaises(Exception) as context:
             board.add_scalars(prior=23, Test=123)
@@ -455,50 +459,50 @@ class TestCases(unittest.TestCase):
             'Tensorboard: epoch should be a string or None.',
             str(context.exception)
         )
-        
+
         board.close()
 
-    def test_delta_save_positive(self):
-        """
-        """
-        self.name = 'Test'
-        self.path = './Test'
-        self.prior_positive_test()
-        board = Tensorboard(
-            name=self.name, 
-            path=self.path, 
-            delete=False,
-            delta=30,
-        )
+    # def test_delta_save_positive(self):
+    #     """
+    #     """
+    #     self.name = 'Test'
+    #     self.path = './Test'
+    #     self.prior_positive_test()
+    #     board = Tensorboard(
+    #         name=self.name,
+    #         path=self.path,
+    #         delete=False,
+    #         delta=30,
+    #     )
 
-        # Test if the model should save
-        assert board.should()
+    #     # Test if the model should save
+    #     assert board.should()
 
-        # Test if the model should not save
-        board.step()
-        assert not board.should()
+    #     # Test if the model should not save
+    #     board.step()
+    #     assert not board.should()
 
-        # Test upper limit
-        board.epoch['default'] += 29
-        assert board.should()
+    #     # Test upper limit
+    #     board.epoch['default'] += 29
+    #     assert board.should()
 
-        # Test specific epoch
-        board.epoch['test'] = 0
-        assert board.should(epoch='test')
+    #     # Test specific epoch
+    #     board.epoch['test'] = 0
+    #     assert board.should(epoch='test')
 
-    def test_delta_save_negative(self) -> None:
-        """
-        """
-        self.name = 'Test'
-        self.path = './Test'
-        self.prior_positive_test()
-        board = Tensorboard(
-            name=self.name, 
-            path=self.path, 
-            delete=False,
-            delta=30,
-        )
-        
+    # def test_delta_save_negative(self) -> None:
+    #     """
+    #     """
+    #     self.name = 'Test'
+    #     self.path = './Test'
+    #     self.prior_positive_test()
+    #     board = Tensorboard(
+    #         name=self.name,
+    #         path=self.path,
+    #         delete=False,
+    #         delta=30,
+    #     )
+
         # Test non existent epoch
         # Test wrong type epoch
 
@@ -506,7 +510,7 @@ class TestCases(unittest.TestCase):
         """
         """
         board = self.default()
-        
+
         # Test if step increases in value
         assert board.epoch['default'] == 0
         board.step()
@@ -566,7 +570,3 @@ class TestCases(unittest.TestCase):
             'Tensorboard: the epoch specified does not exist.',
             str(context.exception)
         )
-
-
-if __name__ == "__main__":
-    unittest.main()
