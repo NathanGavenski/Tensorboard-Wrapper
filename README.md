@@ -3,12 +3,27 @@ This is a wrapper class for the Tensorflow's Tensorboard application. It is stil
 If you want to help be sure to contact me or fork this repository and work on our ToDo list from the development branch.
 Tensorboard.py is the Wrapper that contains all functions needed to interact, more documentation should come in the future, but as for now, the requirements for this project are:
 
-```bash
+## PyTorch
+
+The project does not install PyTorch so it doesn't force a different version from your environment, so before using the wrapper, be sure to install:
+```
+torchvision
+torch
+```
+
+## Development dependencies
+
+```
+setuptools
+wheel
+twine
 numpy
 tensorboard
 torch>=1.6.0 
 torchvision>=0.7.0 
 ```
+
+## install
 
 You can now install this project by using:
 ```{bash}
